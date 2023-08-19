@@ -2,10 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:wow_shopping/app/config.dart';
+import 'package:wow_shopping/app/init_repo_provider.dart';
 import 'package:wow_shopping/app/theme.dart';
-import 'package:wow_shopping/backend/backend.dart';
 import 'package:wow_shopping/features/main/main_screen.dart';
 import 'package:wow_shopping/features/splash/splash_screen.dart';
 
@@ -13,7 +14,7 @@ export 'package:wow_shopping/app/config.dart';
 
 const _appTitle = 'Shop Wow';
 
-class ShopWowApp extends StatefulWidget {
+class ShopWowApp extends ConsumerStatefulWidget {
   const ShopWowApp({
     super.key,
     required this.config,
@@ -22,32 +23,47 @@ class ShopWowApp extends StatefulWidget {
   final AppConfig config;
 
   @override
-  State<ShopWowApp> createState() => _ShopWowAppState();
+  ConsumerState<ShopWowApp> createState() => _ShopWowAppState();
 }
 
-class _ShopWowAppState extends State<ShopWowApp> {
+class _ShopWowAppState extends ConsumerState<ShopWowApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   NavigatorState get navigatorState => _navigatorKey.currentState!;
-
-  late Future<Backend> _appLoader;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     Intl.defaultLocale = PlatformDispatcher.instance.locale.toLanguageTag();
-    _appLoader = Backend.init();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watching the state of the specific Widget
+    final initRepo = ref.watch(initRepoProvider);
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: appOverlayDarkIcons,
-      child: FutureBuilder<Backend>(
-        future: _appLoader,
-        builder: (BuildContext context, AsyncSnapshot<Backend> snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
+        value: appOverlayDarkIcons,
+        child: initRepo.when(
+          data: (data) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              navigatorKey: _navigatorKey,
+              title: _appTitle,
+              theme: generateLightTheme(),
+              home: const MainScreen(),
+            );
+          },
+          error: (error, stl) {
+            return Theme(
+              data: generateLightTheme(),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: Text('$error'),
+              ),
+            );
+          },
+          loading: () {
             return Theme(
               data: generateLightTheme(),
               child: const Directionality(
@@ -55,20 +71,7 @@ class _ShopWowAppState extends State<ShopWowApp> {
                 child: SplashScreen(),
               ),
             );
-          } else {
-            return BackendInheritedWidget(
-              backend: snapshot.requireData,
-              child: MaterialApp(
-                debugShowCheckedModeBanner: false,
-                navigatorKey: _navigatorKey,
-                title: _appTitle,
-                theme: generateLightTheme(),
-                home: const MainScreen(),
-              ),
-            );
-          }
-        },
-      ),
-    );
+          },
+        ));
   }
 }
