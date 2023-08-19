@@ -60,8 +60,8 @@ class AppButton extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (iconAsset case String iconAsset) //
-                  AppIcon(iconAsset: iconAsset),
+                if (iconAsset != null)
+                  AppIcon(iconAsset: iconAsset!),
               ],
             ),
           ),

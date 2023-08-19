@@ -1,51 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wow_shopping/features/connection_monitor/connection_monitor.dart';
+import 'package:wow_shopping/features/main/cubit/main_cubit.dart';
 import 'package:wow_shopping/features/main/widgets/bottom_nav_bar.dart';
 
 export 'package:wow_shopping/models/nav_item.dart';
 
 @immutable
-class MainScreen extends StatefulWidget {
+class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
-
-  static MainScreenState of(BuildContext context) {
-    return context.findAncestorStateOfType<MainScreenState>()!;
-  }
-
-  @override
-  State<MainScreen> createState() => MainScreenState();
-}
-
-class MainScreenState extends State<MainScreen> {
-  NavItem _selected = NavItem.home;
-
-  void gotoSection(NavItem item) {
-    setState(() => _selected = item);
-  }
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => MainCubit(),
+      child: const MainView(),);
+  }
+}
+
+class MainView extends StatelessWidget {
+  const MainView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedNav = context.select((MainCubit cubit) => cubit.state.selected,);
     return SizedBox.expand(
       child: Material(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: ConnectionMonitor(
-                child: IndexedStack(
-                  index: _selected.index,
-                  children: [
-                    for (final item in NavItem.values) //
-                      item.builder(),
-                  ],
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: ConnectionMonitor(
+                    child: IndexedStack(
+                      index: selectedNav.index,
+                      children: [
+                        for (final item in NavItem.values) //
+                          item.builder(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            BottomNavBar(
-              onNavItemPressed: gotoSection,
-              selected: _selected,
-            ),
-          ],
+                BottomNavBar(
+                  onNavItemPressed: context.read<MainCubit>().gotoSection,
+                  selected: selectedNav,
+                ),
+              ],
         ),
       ),
     );

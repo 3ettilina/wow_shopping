@@ -1,4 +1,4 @@
-final class Assets {
+abstract class Assets {
   const Assets._();
 
   static const _assets = 'assets';

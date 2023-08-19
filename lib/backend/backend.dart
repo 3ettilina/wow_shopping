@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wow_shopping/backend/product_repo.dart';
+import 'package:wow_shopping/backend/product_repo_mock.dart';
 import 'package:wow_shopping/backend/wishlist_repo.dart';
 
 export 'package:wow_shopping/backend/product_repo.dart';
@@ -29,7 +30,7 @@ class Backend {
   final WishlistRepo wishlistRepo;
 
   static Future<Backend> init() async {
-    final productsRepo = await ProductsRepo.create();
+    final productsRepo = await ProductsRepo().create();
     final wishlistRepo = await WishlistRepo.create(productsRepo);
     return Backend._(
       productsRepo,
@@ -50,9 +51,13 @@ class BackendInheritedWidget extends InheritedWidget {
 
   static Backend of(BuildContext context, {bool listen = true}) {
     if (listen) {
-      return context.dependOnInheritedWidgetOfExactType<BackendInheritedWidget>()!.backend;
+      return context
+          .dependOnInheritedWidgetOfExactType<BackendInheritedWidget>()!
+          .backend;
     } else {
-      return context.getInheritedWidgetOfExactType<BackendInheritedWidget>()!.backend;
+      return context
+          .getInheritedWidgetOfExactType<BackendInheritedWidget>()!
+          .backend;
     }
   }
 

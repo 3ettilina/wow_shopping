@@ -1,0 +1,81 @@
+import 'package:flutter/material.dart';
+import 'package:wow_shopping/models/product_item.dart';
+import 'package:wow_shopping/widgets/common.dart';
+import 'package:wow_shopping/widgets/content_heading.dart';
+import 'package:wow_shopping/widgets/product_card.dart';
+
+class SliverTopSellingList extends StatelessWidget {
+  const SliverTopSellingList({super.key, required this.products});
+  
+  final List<ProductItem> products;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: horizontalPadding8,
+            child: ContentHeading(
+              title: 'Top Selling Items',
+              buttonLabel: 'Show All',
+              onButtonPressed: () {
+                // FIXME: show all top selling items
+              },
+            ),
+          ),
+          verticalMargin8,
+          for (int index = 0; index < products.length; index += 2) ...[
+            Builder(builder: (BuildContext context) {
+              final item1 = products[index + 0];
+              if (index + 1 < products.length) {
+                final item2 = products[index + 1];
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      horizontalMargin12,
+                      Expanded(
+                        child: ProductCard(
+                          key: Key('top-selling-${item1.id}'),
+                          item: item1,
+                        ),
+                      ),
+                      horizontalMargin12,
+                      Expanded(
+                        child: ProductCard(
+                          key: Key('top-selling-${item2.id}'),
+                          item: item2,
+                        ),
+                      ),
+                      horizontalMargin12,
+                    ],
+                  ),
+                );
+              } else {
+                return Row(
+                  children: [
+                    horizontalMargin12,
+                    Expanded(
+                      child: ProductCard(
+                        key: Key('top-selling-${item1.id}'),
+                        item: item1,
+                      ),
+                    ),
+                    horizontalMargin12,
+                    const Spacer(),
+                    horizontalMargin12,
+                  ],
+                );
+              }
+            },
+            ),
+            verticalMargin12,
+          ],
+          verticalMargin48 + verticalMargin48,
+        ],
+      ),
+    );
+  }
+}

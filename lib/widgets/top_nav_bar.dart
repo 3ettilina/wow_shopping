@@ -53,7 +53,7 @@ class TopNavBar extends StatelessWidget {
                       ),
                       child: title,
                     ),
-                    if (actions case List<Widget> actions) //
+                    if (actions != null) //
                       Align(
                         alignment: Alignment.centerRight,
                         child: Theme(
@@ -62,14 +62,14 @@ class TopNavBar extends StatelessWidget {
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: actions,
+                            children: actions!,
                           ),
                         ),
                       ),
                   ],
                 ),
-                if (bottom case Widget bottom) //
-                  bottom,
+                if (bottom != null) //
+                  bottom!,
               ],
             ),
           ),

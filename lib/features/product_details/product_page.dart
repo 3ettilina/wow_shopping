@@ -505,7 +505,6 @@ class _SliverProductSizeSelector extends StatelessWidget {
 @immutable
 class _SliverProductInfoTileHeader extends StatelessWidget {
   const _SliverProductInfoTileHeader({
-    super.key,
     required this.section,
     required this.title,
   });
