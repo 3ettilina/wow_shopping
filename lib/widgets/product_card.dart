@@ -3,7 +3,31 @@ import 'package:wow_shopping/app/theme.dart';
 import 'package:wow_shopping/features/product_details/product_page.dart';
 import 'package:wow_shopping/models/product_item.dart';
 import 'package:wow_shopping/widgets/common.dart';
+import 'package:wow_shopping/widgets/min_lines.dart';
 import 'package:wow_shopping/widgets/wishlist_button.dart';
+
+class SliverProductCard extends StatelessWidget {
+  const SliverProductCard({
+    super.key,
+    required this.item,
+    this.onPressed,
+  });
+
+  final ProductItem item;
+  final ValueChanged<ProductItem>? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: IntrinsicHeight(
+        child: ProductCard(
+          item: item,
+          onPressed: onPressed,
+        ),
+      ),
+    );
+  }
+}
 
 @immutable
 class ProductCard extends StatelessWidget {
@@ -51,12 +75,15 @@ class ProductCard extends StatelessWidget {
             verticalMargin4,
             Padding(
               padding: horizontalPadding4,
-              child: Text(
-                item.title,
+              child: MinLines(
+                minLines: 2,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 16.0,
                 ),
+                child: Text(item.title),
               ),
             ),
             Padding(
