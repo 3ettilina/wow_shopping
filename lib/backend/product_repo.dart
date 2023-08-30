@@ -4,8 +4,6 @@ abstract class ProductsRepo {
   // TODO: Cache products
   List<ProductItem> get cachedItems;
 
-  Future<ProductsRepo> create();
-
   Future<List<ProductItem>> fetchTopSelling();
 
   /// Find product from the top level products cache

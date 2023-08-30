@@ -11,7 +11,7 @@ part 'top_selling_state.dart';
 class TopSellingBloc extends Bloc<TopSellingEvent, TopSellingState> {
   TopSellingBloc({required ProductsRepo productsRepo})
       : _productsRepo = productsRepo,
-        super(TopSellingInitial()) {
+        super(const TopSellingInitial()) {
     on<TopSellingFetchRequested>(_onTopSellingFetchRequested);
   }
 
@@ -24,13 +24,9 @@ class TopSellingBloc extends Bloc<TopSellingEvent, TopSellingState> {
     try {
       emit(TopSellingLoading());
       final products = await _productsRepo.fetchTopSelling();
-      final statee = state;
-      switch (statee) {
-        case TopSellingData():
-          emit(state.c)
-      }
+      emit(TopSellingData(products));
     } catch (_) {
-      emit(TopSellingFailure("Pepeeee"));
+      emit(const TopSellingFailure("Something went wrong while fetching products"));
     }
   }
 }

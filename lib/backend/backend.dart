@@ -37,7 +37,7 @@ class Backend {
   final CartRepo cartRepo;
 
   static Future<Backend> init() async {
-    final productsRepo = await ProductsRepo().create();
+    final productsRepo = await ProductsRepoMock().init();
     final wishlistRepo = await WishlistRepo.create(productsRepo);
     final cartRepo = await CartRepo.create();
     return Backend._(

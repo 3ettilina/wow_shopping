@@ -12,7 +12,11 @@ class ItemSelectionEventSetSelectedItemRequested extends ItemSelectionEvent {
 }
 
 class ItemSelectionEventToggleSelectAllRequested extends ItemSelectionEvent {
-  ItemSelectionEventToggleSelectAllRequested();
+  ItemSelectionEventToggleSelectAllRequested({
+    required this.allProducts,
+});
+
+  final List<ProductItem> allProducts;
 }
 
 class ItemSelectionEventToggleRemoveAllSelectedRequested

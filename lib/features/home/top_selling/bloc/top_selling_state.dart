@@ -2,41 +2,27 @@ part of 'top_selling_bloc.dart';
 
 @immutable
 sealed class TopSellingState {
-  const TopSellingState({
-    required this.username,
-    required this.password,
-  });
-
-  final String username;
-  final String password;
+  const TopSellingState();
 }
 
 final class TopSellingInitial extends TopSellingState {
-  const TopSellingInitial() : super(username: '', password: '');
+  const TopSellingInitial();
 }
 
 final class TopSellingEditing extends TopSellingState {
-  const TopSellingEditing({String username, String password})
-      : super(username: username ?? '', password: password ?? '');
+  const TopSellingEditing();
 }
 
 final class TopSellingLoading extends TopSellingState {}
 
 final class TopSellingData extends TopSellingState {
-  TopSellingData(this.topSellingProducts);
+  const TopSellingData(this.topSellingProducts);
 
   final List<ProductItem> topSellingProducts;
-
-  TopSellingData copyWith({
-    List<ProductItem>? newProducts,
-  }) =>
-      TopSellingData(
-        newProducts ?? topSellingProducts,
-      );
 }
 
 final class TopSellingFailure extends TopSellingState {
-  TopSellingFailure(this.error);
+  const TopSellingFailure(this.error);
 
   final String error;
 }

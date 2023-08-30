@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wow_shopping/app/assets.dart';
 import 'package:wow_shopping/app/theme.dart';
 import 'package:wow_shopping/backend/backend.dart';
+import 'package:wow_shopping/features/wishlist/bloc/item_selection/item_selection_bloc.dart';
 import 'package:wow_shopping/features/wishlist/bloc/wishlist/wishlist_bloc.dart';
 import 'package:wow_shopping/features/wishlist/widgets/wishlist_item.dart';
 import 'package:wow_shopping/models/product_item.dart';
@@ -16,11 +17,14 @@ class WishlistPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<WishlistBloc>(
-      create: (_) => WishlistBloc(
-        wishlistRepo: context.wishlistRepo,
-      ),
-      child: const WishlistView(),
+    return MultiBlocProvider(providers: [
+    BlocProvider<WishlistBloc>(
+    create: (_) => WishlistBloc(
+      wishlistRepo: context.wishlistRepo,
+    ),),
+    BlocProvider<ItemSelectionBloc>(
+    create: (_) => ItemSelectionBloc(wishlistRepo: context.wishlistRepo,),),
+    ], child: const WishlistView(),
     );
   }
 }
@@ -28,65 +32,42 @@ class WishlistPage extends StatelessWidget {
 class WishlistView extends StatelessWidget {
   const WishlistView({super.key});
 
-  var _wishlistItems = <ProductItem>[];
-  final _selectedItems = <String>{};
-
-  void setSelected(ProductItem item, bool selected) {
-    setState(() {
-      if (selected) {
-        _selectedItems.add(item.id);
-      } else {
-        _selectedItems.remove(item.id);
-      }
-    });
-  }
-
-  void toggleSelectAll() {
-    final allIds = _wishlistItems.map((el) => el.id).toList();
-    setState(() {
-      if (_selectedItems.containsAll(allIds)) {
-        _selectedItems.clear();
-      } else {
-        _selectedItems.addAll(allIds);
-      }
-    });
-  }
-
-  void _removeSelected() {
-    setState(() {
-      for (final selected in _selectedItems) {
-        wishlistRepo.removeToWishlist(selected);
-      }
-      _selectedItems.clear();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(
       child: Material(
         child: BlocBuilder<WishlistBloc, WishlistState>(
-          builder: (BuildContext context, WishlistState state) {
-            return switch (state) {
-              WishlistInitial() => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              WishlistLoading() => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              WishlistFailure() => ErrorWidget(Exception(
-                  'Something went wrong while fetching the wishlist')),
-              WishlistData() => _WishlistListView(
-                  wishlistItems: _wishlistItems,
-                  selectedItems: _selectedItems,
-                  toggleSelectAll: toggleSelectAll,
-                  isSelected: isSelected,
-                  setSelected: setSelected,
-                  removeSelected: _removeSelected,
-                )
-            };
-          },
-        ),
+          builder: (BuildContext context, WishlistState wishlistState) {
+            return BlocBuilder<ItemSelectionBloc, ItemSelectionState>(
+              builder: (BuildContext context,
+                  ItemSelectionState itemSelectionState) {
+                final itemSelectionBloc = context.read<ItemSelectionBloc>();
+                return switch (wishlistState) {
+                  WishlistInitial() =>
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  WishlistLoading() =>
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  WishlistFailure() =>
+                      ErrorWidget(Exception(
+                          'Something went wrong while fetching the wishlist')),
+                  WishlistData() =>
+                      _WishlistListView(
+                        wishlistItems: wishlistState.wishlistProducts,
+                        selectedItems: itemSelectionState.selectedItems,
+                        toggleSelectAll: () => itemSelectionBloc.add(ItemSelectionEventToggleSelectAllRequested(allProducts: wishlistState.wishlistProducts,)),
+                        isSelected: itemSelectionState.isSelected,
+                        setSelected: (item, value) => itemSelectionBloc.add(ItemSelectionEventSetSelectedItemRequested(selected: item)),
+                        removeSelected: () => itemSelectionBloc.add(ItemSelectionEventToggleRemoveAllSelectedRequested()),
+                      )
+                };
+              },
+            );
+          }
+    ),
       ),
     );
   }

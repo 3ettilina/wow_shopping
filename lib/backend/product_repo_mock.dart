@@ -6,14 +6,13 @@ import 'package:wow_shopping/backend/product_repo.dart';
 import 'package:wow_shopping/models/product_item.dart';
 
 class ProductsRepoMock implements ProductsRepo {
-  ProductsRepoMock(this._products);
+  ProductsRepoMock();
 
-  final List<ProductItem> _products;
+  late final List<ProductItem> _products;
 
   // TODO: Cache products
 
-  @override
-  Future<ProductsRepo> create() async {
+  Future<ProductsRepo> init() async {
     try {
       final data = json.decode(
         await rootBundle.loadString(Assets.productsData),
@@ -22,12 +21,13 @@ class ProductsRepoMock implements ProductsRepo {
           .cast<Map>()
           .map(ProductItem.fromJson)
           .toList();
-      return ProductsRepoMock(products);
+      _products = products;
     } catch (error, stackTrace) {
       // FIXME: implement logging
       print('$error\n$stackTrace');
       rethrow;
     }
+    return this;
   }
 
   @override
