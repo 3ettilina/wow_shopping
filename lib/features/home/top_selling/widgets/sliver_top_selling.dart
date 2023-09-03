@@ -10,7 +10,8 @@ class SliverTopSellingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TopSellingBloc>(
-      create: (_) => TopSellingBloc(productsRepo: context.productsRepo)..add(TopSellingFetchRequested()),
+      create: (_) => TopSellingBloc(productsRepo: context.productsRepo)
+        ..add(TopSellingFetchRequested()),
       child: const SliverTopSellingView(),
     );
   }
@@ -25,14 +26,18 @@ class SliverTopSellingView extends StatelessWidget {
     return BlocBuilder<TopSellingBloc, TopSellingState>(
       builder: (context, state) {
         return switch (state) {
-          TopSellingInitial() => const SliverToBoxAdapter(child: SizedBox.shrink(),),
+          TopSellingInitial() => const SliverToBoxAdapter(
+              child: SizedBox.shrink(),
+            ),
           TopSellingLoading() => const SliverFillRemaining(
               child: Center(
                 child: CircularProgressIndicator(),
               ),
             ),
           TopSellingEditing() => const SliverTopSellingSection(),
-          TopSellingFailure() => SliverToBoxAdapter(child: Text(state.error),),
+          TopSellingFailure() => SliverToBoxAdapter(
+              child: Text(state.error),
+            ),
           TopSellingData() => SliverTopSellingList(
               products: state.topSellingProducts,
             ),

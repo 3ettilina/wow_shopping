@@ -10,6 +10,21 @@ export 'package:wow_shopping/models/nav_item.dart';
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
+  static Route<void> route() {
+    return PageRouteBuilder(
+      pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          ) {
+        return FadeTransition(
+          opacity: animation,
+          child: const MainScreen(),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(

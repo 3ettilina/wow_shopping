@@ -10,8 +10,6 @@ class ProductsRepoMock implements ProductsRepo {
 
   late final List<ProductItem> _products;
 
-  // TODO: Cache products
-
   Future<ProductsRepo> init() async {
     try {
       final data = json.decode(

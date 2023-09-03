@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:wow_shopping/backend/backend.dart';
 import 'package:wow_shopping/models/product_item.dart';
 
 part 'wishlist_event.dart';
-
 part 'wishlist_state.dart';
 
 class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
@@ -24,9 +21,10 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
   ) async {
     emit(WishlistLoading());
     try {
-      _wishlistRepo.streamWishlistItems.listen((products) {
-        emit(WishlistData(wishlistProducts: products));
-      });
+      await emit.forEach<List<ProductItem>>(
+        _wishlistRepo.streamWishlistItems,
+        onData: (products) => WishlistData(wishlistProducts: products),
+      );
     } catch (e) {
       emit(WishlistFailure());
     }

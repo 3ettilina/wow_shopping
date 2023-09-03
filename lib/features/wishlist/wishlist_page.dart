@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wow_shopping/app/assets.dart';
-import 'package:wow_shopping/app/theme.dart';
 import 'package:wow_shopping/backend/backend.dart';
 import 'package:wow_shopping/features/wishlist/bloc/item_selection/item_selection_bloc.dart';
 import 'package:wow_shopping/features/wishlist/bloc/wishlist/wishlist_bloc.dart';
 import 'package:wow_shopping/features/wishlist/widgets/wishlist_item.dart';
 import 'package:wow_shopping/models/product_item.dart';
 import 'package:wow_shopping/widgets/app_button.dart';
+import 'package:wow_shopping/widgets/app_panel.dart';
 import 'package:wow_shopping/widgets/common.dart';
 import 'package:wow_shopping/widgets/top_nav_bar.dart';
 
@@ -17,14 +17,20 @@ class WishlistPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(providers: [
-    BlocProvider<WishlistBloc>(
-    create: (_) => WishlistBloc(
-      wishlistRepo: context.wishlistRepo,
-    ),),
-    BlocProvider<ItemSelectionBloc>(
-    create: (_) => ItemSelectionBloc(wishlistRepo: context.wishlistRepo,),),
-    ], child: const WishlistView(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<WishlistBloc>(
+          create: (_) => WishlistBloc(
+            wishlistRepo: context.wishlistRepo,
+          )..add(WishlistRequested()),
+        ),
+        BlocProvider<ItemSelectionBloc>(
+          create: (_) => ItemSelectionBloc(
+            wishlistRepo: context.wishlistRepo,
+          ),
+        ),
+      ],
+      child: const WishlistView(),
     );
   }
 }
@@ -37,37 +43,38 @@ class WishlistView extends StatelessWidget {
     return SizedBox.expand(
       child: Material(
         child: BlocBuilder<WishlistBloc, WishlistState>(
-          builder: (BuildContext context, WishlistState wishlistState) {
-            return BlocBuilder<ItemSelectionBloc, ItemSelectionState>(
-              builder: (BuildContext context,
-                  ItemSelectionState itemSelectionState) {
-                final itemSelectionBloc = context.read<ItemSelectionBloc>();
-                return switch (wishlistState) {
-                  WishlistInitial() =>
-                  const Center(
+            builder: (BuildContext context, WishlistState wishlistState) {
+          return BlocBuilder<ItemSelectionBloc, ItemSelectionState>(
+            builder:
+                (BuildContext context, ItemSelectionState itemSelectionState) {
+              final itemSelectionBloc = context.read<ItemSelectionBloc>();
+              return switch (wishlistState) {
+                WishlistInitial() => const Center(
                     child: CircularProgressIndicator(),
                   ),
-                  WishlistLoading() =>
-                  const Center(
+                WishlistLoading() => const Center(
                     child: CircularProgressIndicator(),
                   ),
-                  WishlistFailure() =>
-                      ErrorWidget(Exception(
-                          'Something went wrong while fetching the wishlist')),
-                  WishlistData() =>
-                      _WishlistListView(
-                        wishlistItems: wishlistState.wishlistProducts,
-                        selectedItems: itemSelectionState.selectedItems,
-                        toggleSelectAll: () => itemSelectionBloc.add(ItemSelectionEventToggleSelectAllRequested(allProducts: wishlistState.wishlistProducts,)),
-                        isSelected: itemSelectionState.isSelected,
-                        setSelected: (item, value) => itemSelectionBloc.add(ItemSelectionEventSetSelectedItemRequested(selected: item)),
-                        removeSelected: () => itemSelectionBloc.add(ItemSelectionEventToggleRemoveAllSelectedRequested()),
-                      )
-                };
-              },
-            );
-          }
-    ),
+                WishlistFailure() => ErrorWidget(Exception(
+                    'Something went wrong while fetching the wishlist')),
+                WishlistData() => _WishlistListView(
+                    wishlistItems: wishlistState.wishlistProducts,
+                    selectedItems: itemSelectionState.selectedItems,
+                    toggleSelectAll: () => itemSelectionBloc
+                        .add(ItemSelectionEventToggleSelectAllRequested(
+                      allProducts: wishlistState.wishlistProducts,
+                    )),
+                    isSelected: itemSelectionState.isSelected,
+                    setSelected: (item, value) => itemSelectionBloc.add(
+                        ItemSelectionEventSetSelectedItemRequested(
+                            selected: item)),
+                    removeSelected: () => itemSelectionBloc.add(
+                        ItemSelectionEventToggleRemoveAllSelectedRequested()),
+                  )
+              };
+            },
+          );
+        }),
       ),
     );
   }
@@ -138,37 +145,29 @@ class _WishlistListView extends StatelessWidget {
           child: Align(
             alignment: Alignment.topCenter,
             heightFactor: selectedItems.isEmpty ? 0.0 : 1.0,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                color: appLightGreyColor,
-                border: Border(
-                  top: BorderSide(color: appDividerColor, width: 2.0),
-                ),
-              ),
-              child: Padding(
-                padding: allPadding24,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: AppButton(
-                        onPressed: removeSelected,
-                        label: 'Remove',
-                        iconAsset: Assets.iconRemove,
-                      ),
+            child: AppPanel(
+              padding: allPadding24,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      onPressed: removeSelected,
+                      label: 'Remove',
+                      iconAsset: Assets.iconRemove,
                     ),
-                    horizontalMargin16,
-                    Expanded(
-                      child: AppButton(
-                        onPressed: () {
-                          // FIXME: implement Buy Now button
-                        },
-                        label: 'Buy now',
-                        iconAsset: Assets.iconBuy,
-                        style: AppButtonStyle.highlighted,
-                      ),
+                  ),
+                  horizontalMargin16,
+                  Expanded(
+                    child: AppButton(
+                      onPressed: () {
+                        // FIXME: implement Buy Now button
+                      },
+                      label: 'Buy now',
+                      iconAsset: Assets.iconBuy,
+                      style: AppButtonStyle.highlighted,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
