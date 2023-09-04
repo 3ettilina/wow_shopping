@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wow_shopping/app/theme.dart';
-import 'package:wow_shopping/features/cart/widgets/cart_quantity_selector.dart';
+import 'package:wow_shopping/features/cart/widgets/cart_quantity/cart_quantity_selector.dart';
 import 'package:wow_shopping/models/cart_item.dart';
 import 'package:wow_shopping/utils/formatting.dart';
 import 'package:wow_shopping/widgets/common.dart';
@@ -55,7 +55,8 @@ class SliverCartItemView extends StatelessWidget {
                           ),
                         ),
                         verticalMargin4,
-                        Text('Deliver by ${formatShortDate(item.deliveryDate)}'),
+                        Text(
+                            'Deliver by ${formatShortDate(item.deliveryDate)}'),
                         verticalMargin12,
                         Align(
                           alignment: Alignment.centerLeft,

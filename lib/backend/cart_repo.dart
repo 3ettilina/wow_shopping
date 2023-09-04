@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:decimal/decimal.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:wow_shopping/backend/wishlist_repo.dart';
 import 'package:wow_shopping/models/cart_item.dart';
 import 'package:wow_shopping/models/cart_storage.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
-import 'package:path/path.dart' as path;
 import 'package:wow_shopping/models/product_item.dart';
-import 'package:wow_shopping/backend/wishlist_repo.dart';
 
 /// FIXME: Very similar to the [WishlistRepo] and should be refactored out and simplified
 class CartRepo {
@@ -54,7 +54,8 @@ class CartRepo {
 
   Decimal get currentCartTotal => _calculateCartTotal(currentCartItems);
 
-  Stream<Decimal> get streamCartTotal => streamCartItems.map(_calculateCartTotal);
+  Stream<Decimal> get streamCartTotal =>
+      streamCartItems.map(_calculateCartTotal);
 
   Decimal _calculateCartTotal(List<CartItem> items) {
     return items.fold<Decimal>(Decimal.zero, (prev, el) => prev + el.total);
@@ -62,14 +63,16 @@ class CartRepo {
 
   CartItem cartItemForProduct(ProductItem item) {
     return _storage.items //
-        .firstWhere((el) => el.product.id == item.id, orElse: () => CartItem.none);
+        .firstWhere((el) => el.product.id == item.id,
+            orElse: () => CartItem.none);
   }
 
   bool cartContainsProduct(ProductItem item) {
     return cartItemForProduct(item) != CartItem.none;
   }
 
-  void addToCart(ProductItem item, {ProductOption option = ProductOption.none}) {
+  void addToCart(ProductItem item,
+      {ProductOption option = ProductOption.none}) {
     final existingItem = cartItemForProduct(item);
     if (existingItem != CartItem.none) {
       updateQuantity(item.id, existingItem.quantity + 1);
@@ -91,6 +94,14 @@ class CartRepo {
     );
     _emitCart();
     _saveCart();
+  }
+
+  int getQuantity(String productId) {
+    final cartItem = _storage.items.firstWhere(
+        (item) => item.product.id == productId,
+        orElse: () => CartItem.none);
+
+    return cartItem.quantity;
   }
 
   void updateQuantity(String productId, int quantity) {
